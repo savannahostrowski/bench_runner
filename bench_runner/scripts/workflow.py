@@ -227,7 +227,12 @@ def tune_system(venv: PathLike, perf: bool) -> None:
     if cpu_affinity := os.environ.get("CPU_AFFINITY"):
         args.append(f'--affinity="{cpu_affinity}"')
 
-    run_in_venv(venv, "pyperf", args, sudo=True)
+    try:
+        run_in_venv(venv, "pyperf", args, sudo=True)
+    except subprocess.CalledProcessError:
+        # pyperf system tune fails on ARM systems (Raspberry Pi 5) due to
+        # kernel limitations with IRQ affinity. This is expected and non-critical.
+        print("WARNING: pyperf system tune failed (expected on ARM), continuing...")
 
     if perf:
         subprocess.check_call(
@@ -238,8 +243,6 @@ def tune_system(venv: PathLike, perf: bool) -> None:
                 "echo 100000 > /proc/sys/kernel/perf_event_max_sample_rate",
             ]
         )
-
-
 def reset_system(venv: PathLike) -> None:
     # System tuning is Linux only
     if util.get_simple_platform() != "linux":
