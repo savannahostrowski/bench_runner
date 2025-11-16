@@ -140,10 +140,10 @@ def collect_pystats(
 
     all_benchmarks = get_benchmark_names(benchmarks)
 
-    # Default to loops.json if not explicitly set, like before the
-    # environment variable was added.
-    if LOOPS_FILE_ENV_VAR not in os.environ:
-        os.environ[LOOPS_FILE_ENV_VAR] = "loops.json"
+    # Don't use loops.json for pystats since we're not measuring timing.
+    # This avoids errors when loops.json doesn't exist yet.
+    if LOOPS_FILE_ENV_VAR in os.environ:
+        del os.environ[LOOPS_FILE_ENV_VAR]
 
     extra_args = ["--hook", "pystats", "--warmups", "0"]
 
