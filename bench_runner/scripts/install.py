@@ -285,6 +285,39 @@ def generate__weekly(dst: Any) -> Any:
     return dst
 
 
+def generate__nightly(dst: Any) -> Any:
+    cfg = config.get_config()
+
+    all_jobs = []
+    for name, nightly_cfg in cfg.nightly.items():
+        for runner_nickname in nightly_cfg.runners:
+            runner = runners.get_runner_by_nickname(runner_nickname)
+            if runner.nickname == "unknown":
+                raise ValueError(
+                    f"Runner {runner_nickname} not found in bench_runner.toml"
+                )
+            job = {
+                "uses": "./.github/workflows/_benchmark.yml",
+                "needs": "determine_head",
+                "with": {
+                    "fork": "python",
+                    "ref": "${{ needs.determine_head.outputs.commit }}",
+                    "machine": runner.name,
+                    "benchmarks": "all_and_excluded",
+                    "pgo": True,
+                    **flags.flags_to_gha_variables_yml(nightly_cfg.flags),
+                },
+                "secrets": "inherit",
+            }
+            job_name = f"nightly-{name}-{runner.nickname}"
+            dst["jobs"][job_name] = job
+            all_jobs.append(job_name)
+
+    dst["jobs"]["generate"]["needs"].extend(all_jobs)
+
+    return dst
+
+
 def generate_generic(dst: Any) -> Any:
     return dst
 
@@ -295,6 +328,7 @@ GENERATORS = {
     "_pystats.src.yml": generate__pystats,
     "_notify.src.yml": generate__notify,
     "_weekly.src.yml": generate__weekly,
+    "_nightly.src.yml": generate__nightly,
 }
 
 

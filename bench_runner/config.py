@@ -62,6 +62,15 @@ class Weekly:
 
 
 @dataclasses.dataclass
+class Nightly:
+    flags: list[str] = dataclasses.field(default_factory=list)
+    runners: list[str] = dataclasses.field(default_factory=list)
+
+    def __post_init__(self):
+        self.flags = mflags.normalize_flags(self.flags)
+
+
+@dataclasses.dataclass
 class Config:
     bases: Bases
     runners: dict[str, mrunners.Runner]
@@ -72,6 +81,7 @@ class Config:
     flag_effect_plot: mplot.FlagEffectPlotConfig | None = None
     benchmark_longitudinal_plot: mplot.BenchmarkLongitudinalPlotConfig | None = None
     weekly: dict[str, Weekly] = dataclasses.field(default_factory=dict)
+    nightly: dict[str, Nightly] = dataclasses.field(default_factory=dict)
 
     def __post_init__(self):
         self.bases = Bases(**self.bases)  # pyright: ignore[reportCallIssue]
@@ -108,6 +118,13 @@ class Config:
             self.weekly = {
                 name: Weekly(**weekly)  # pyright: ignore[reportCallIssue]
                 for name, weekly in self.weekly.items()
+            }
+        if len(self.nightly) == 0:
+            self.nightly = {"default": Nightly(runners=list(self.runners.keys()))}
+        else:
+            self.nightly = {
+                name: Nightly(**nightly)  # pyright: ignore[reportCallIssue]
+                for name, nightly in self.nightly.items()
             }
 
 
