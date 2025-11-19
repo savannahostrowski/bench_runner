@@ -250,12 +250,17 @@ def reset_system(venv: PathLike) -> None:
     if util.get_simple_platform() != "linux":
         return
 
-    run_in_venv(
-        venv,
-        "pyperf",
-        ["system", "reset"],
-        sudo=True,
-    )
+    try:
+        run_in_venv(
+            venv,
+            "pyperf",
+            ["system", "reset"],
+            sudo=True,
+        )
+    except subprocess.CalledProcessError:
+        # pyperf system reset can fail due to kernel limitations or missing drivers.
+        # This is non-critical.
+        print("WARNING: pyperf system reset failed, continuing...")
 
 
 def _main(
