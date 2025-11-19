@@ -227,7 +227,12 @@ def tune_system(venv: PathLike, perf: bool) -> None:
     if cpu_affinity := os.environ.get("CPU_AFFINITY"):
         args.append(f'--affinity="{cpu_affinity}"')
 
-    run_in_venv(venv, "pyperf", args, sudo=True)
+    try:
+        run_in_venv(venv, "pyperf", args, sudo=True)
+    except subprocess.CalledProcessError:
+        # pyperf system tune can fail due to kernel limitations or missing drivers.
+        # This is non-critical for benchmarking if system is already tuned.
+        print("WARNING: pyperf system tune failed, continuing...")
 
     if perf:
         subprocess.check_call(
