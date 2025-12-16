@@ -870,12 +870,17 @@ def match_to_bases(
 
         if not found_base and result.fork == "python" and result.flags != []:
             # Compare builds with flags with builds with no flags
+            # Special case: JIT,TAILCALL compares against TAILCALL (not empty)
+            if result.flags == ["JIT", "TAILCALL"]:
+                base_flags = ["TAILCALL"]
+            else:
+                base_flags = []
             find_match(
                 result,
                 candidates,
                 "base",
                 lambda ref: (
-                    ref.cpython_hash == result.cpython_hash and ref.flags == []
+                    ref.cpython_hash == result.cpython_hash and ref.flags == base_flags
                 ),
             )
 
