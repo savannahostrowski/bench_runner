@@ -236,18 +236,22 @@ def collect_perf(python: PathLike, benchmarks: str):
 
     if PROFILING_RESULTS.is_dir():
         shutil.rmtree(PROFILING_RESULTS)
-    PROFILING_RESULTS.mkdir()
+    PROFILING_RESULTS.mkdir(parents=True)
 
     perf_data_glob = "perf.data.*"
     for benchmark in all_benchmarks:
         for filename in Path(".").glob(perf_data_glob):
             filename.unlink()
 
-        run_benchmarks(
-            python,
-            benchmark,
-            extra_args=["--hook", "perf_record"],
-        )
+        try:
+            run_benchmarks(
+                python,
+                benchmark,
+                extra_args=["--hook", "perf_record"],
+            )
+        except NoBenchmarkError:
+            print(f"Benchmark {benchmark} failed, skipping...", file=sys.stderr)
+            continue
 
         fileiter = Path(".").glob(perf_data_glob)
         if util.has_any_element(fileiter):
