@@ -56,8 +56,15 @@ jobs:
     needs: [pystats, pystats-tier2]
     secrets: inherit
 
-  publish:
-    uses: ./.github/workflows/_publish.yml
-    if: ${{ always() }}
+  trigger-dashboard:
+    runs-on: ubuntu-latest
     needs: [generate]
-    secrets: inherit
+    if: ${{ always() && needs.generate.result == 'success' }}
+    steps:
+      - name: Trigger dashboard update
+        run: |
+          curl -X POST \
+            -H "Accept: application/vnd.github.v3+json" \
+            -H "Authorization: token ${{ secrets.DASHBOARD_REPO_PAT }}" \
+            https://api.github.com/repos/savannahostrowski/doesjitgobrrr/dispatches \
+            -d '{"event_type":"benchmark_completed"}'

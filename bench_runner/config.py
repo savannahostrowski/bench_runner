@@ -44,6 +44,12 @@ class PublishMirror:
 
 
 @dataclasses.dataclass
+class Install:
+    # List of template files to skip during install (e.g., ["ci.src.yml"])
+    skip_templates: list[str] = dataclasses.field(default_factory=list)
+
+
+@dataclasses.dataclass
 class Benchmarks:
     # Benchmarks to exclude from plots.
     excluded_benchmarks: set[str] = dataclasses.field(default_factory=set)
@@ -75,6 +81,7 @@ class Config:
     bases: Bases
     runners: dict[str, mrunners.Runner]
     publish_mirror: PublishMirror = dataclasses.field(default_factory=PublishMirror)
+    install: Install = dataclasses.field(default_factory=Install)
     benchmarks: Benchmarks = dataclasses.field(default_factory=Benchmarks)
     notify: Notify = dataclasses.field(default_factory=Notify)
     longitudinal_plot: mplot.LongitudinalPlotConfig | None = None
@@ -98,6 +105,8 @@ class Config:
         }
         if isinstance(self.publish_mirror, dict):
             self.publish_mirror = PublishMirror(**self.publish_mirror)
+        if isinstance(self.install, dict):
+            self.install = Install(**self.install)
         if isinstance(self.benchmarks, dict):
             self.benchmarks = Benchmarks(**self.benchmarks)
         if isinstance(self.notify, dict):

@@ -344,8 +344,15 @@ def _main(check: bool) -> None:
             ROOT_PATH / "bench_runner.toml",
         )
 
+    cfg = config.get_config()
+    skip_templates = set(cfg.install.skip_templates)
+
     for src_path in TEMPLATE_PATH.glob("*"):
         if not src_path.is_file():
+            continue
+
+        if src_path.name in skip_templates:
+            print(f"Skipping {src_path} (in install.skip_templates)...")
             continue
 
         print(f"Processing {src_path}...")
