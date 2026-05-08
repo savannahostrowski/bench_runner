@@ -185,9 +185,10 @@ def compile_windows(
     args = ["--%"]  # This is the PowerShell "stop parsing" flag
     if force_32bit:
         args.extend(["-p", "win32"])
-    args.extend(["-c", "Release"])
     if pgo:
         args.append("--pgo")
+    else:
+        args.extend(["-c", "Release"])
     if "JIT" in flags:
         args.append("--experimental-jit")
     if "PYTHON_UOPS" in flags:
@@ -225,7 +226,7 @@ def tune_system(venv: PathLike, perf: bool) -> None:
 
     args = ["system", perf and "reset" or "tune"]
     if cpu_affinity := os.environ.get("CPU_AFFINITY"):
-        args.append(f'--affinity="{cpu_affinity}"')
+        args.append(f"--affinity={cpu_affinity}")
 
     try:
         run_in_venv(venv, "pyperf", args, sudo=True)
