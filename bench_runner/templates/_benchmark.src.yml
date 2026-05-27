@@ -86,10 +86,27 @@ jobs:
         uses: EndBug/add-and-commit@v9
         with:
           add: results
+          push: false
+      - name: Push results with retry
+        shell: bash
+        run: |
+          set -e
+          branch="${GITHUB_REF_NAME}"
+          for attempt in 1 2 3 4 5; do
+            echo "Push attempt $attempt to origin/$branch"
+            git pull --rebase -s recursive -X ours origin "$branch"
+            if git push origin "HEAD:$branch"; then
+              echo "Push succeeded on attempt $attempt"
+              exit 0
+            fi
+            sleep $(( RANDOM % 30 + 10 ))
+          done
+          echo "Push failed after 5 attempts" >&2
+          exit 1
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: benchmark
+          name: benchmark-${{ env.BENCHMARK_MACHINE_NICKNAME }}-${{ env.flags }}
           path: |
             benchmark.json
           overwrite: true
@@ -127,11 +144,29 @@ jobs:
         uses: EndBug/add-and-commit@v9
         with:
           add: results
+          push: false
+      - name: Push results with retry
+        if: ${{ !inputs.perf }}
+        shell: bash
+        run: |
+          set -e
+          branch="${GITHUB_REF_NAME}"
+          for attempt in 1 2 3 4 5; do
+            echo "Push attempt $attempt to origin/$branch"
+            git pull --rebase -s recursive -X ours origin "$branch"
+            if git push origin "HEAD:$branch"; then
+              echo "Push succeeded on attempt $attempt"
+              exit 0
+            fi
+            sleep $(( RANDOM % 30 + 10 ))
+          done
+          echo "Push failed after 5 attempts" >&2
+          exit 1
       - name: Upload benchmark artifacts
         if: ${{ !inputs.perf }}
         uses: actions/upload-artifact@v4
         with:
-          name: benchmark
+          name: benchmark-${{ env.BENCHMARK_MACHINE_NICKNAME }}-${{ env.flags }}
           path: |
             benchmark.json
           overwrite: true
@@ -167,10 +202,27 @@ jobs:
         uses: EndBug/add-and-commit@v9
         with:
           add: results
+          push: false
+      - name: Push results with retry
+        shell: bash
+        run: |
+          set -e
+          branch="${GITHUB_REF_NAME}"
+          for attempt in 1 2 3 4 5; do
+            echo "Push attempt $attempt to origin/$branch"
+            git pull --rebase -s recursive -X ours origin "$branch"
+            if git push origin "HEAD:$branch"; then
+              echo "Push succeeded on attempt $attempt"
+              exit 0
+            fi
+            sleep $(( RANDOM % 30 + 10 ))
+          done
+          echo "Push failed after 5 attempts" >&2
+          exit 1
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: benchmark
+          name: benchmark-${{ env.BENCHMARK_MACHINE_NICKNAME }}-${{ env.flags }}
           path: |
             benchmark.json
           overwrite: true
