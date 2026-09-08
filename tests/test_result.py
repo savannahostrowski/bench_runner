@@ -122,3 +122,28 @@ def test_from_scratch(monkeypatch):
         f"bm-20221119-{platform.system().lower()}-{platform.machine().lower()}"
         f"-my%2dfork-9d38120e335357a3b294-{platform.python_version()}-b7e4f1d.json"
     )
+
+
+def test_from_scratch_sanitizes_ref_path_separator(monkeypatch):
+    monkeypatch.chdir(DATA_PATH)
+    monkeypatch.setattr(
+        mod_result.git,
+        "get_git_hash",
+        lambda *_args: "b7e4f1d97c6e784d2dee182d2b81541ddcff5751",
+    )
+    monkeypatch.setattr(
+        mod_result.git,
+        "get_git_commit_date",
+        lambda *_args: "2022-11-19T20:47:09+00:00",
+    )
+    monkeypatch.setattr(socket, "gethostname", lambda: "pyperf")
+
+    result = mod_result.Result.from_scratch(
+        sys.executable,
+        "my-fork",
+        "jit/free-threading",
+    )
+
+    assert result.ref == "jit_free_threading"
+    assert result.filename.parent.parent == Path("results")
+    assert "-jit_free_threading-" in result.filename.name

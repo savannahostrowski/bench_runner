@@ -48,9 +48,11 @@ def _clean(string: str) -> str:
     """
     Clean an arbitrary string to be suitable for a filename.
 
-    It can't contain dashes, since dashes are used as a delimiter.
+    It can't contain dashes, since dashes are used as a delimiter, or forward
+    slashes, since Git branch names commonly contain them and they would create
+    unintended subdirectories.
     """
-    return string.replace("-", "_")
+    return string.replace("-", "_").replace("/", "_")
 
 
 def _clean_for_url(string: str) -> str:
