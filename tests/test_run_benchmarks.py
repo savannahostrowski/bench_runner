@@ -28,9 +28,18 @@ def hardcode_benchmark_hash(monkeypatch):
     monkeypatch.setattr(benchmark_definitions, "get_benchmark_hash", dummy)
 
 
+def hardcode_github_repository(monkeypatch):
+    repository = "faster-cpython/bench_runner"
+    monkeypatch.setenv("GITHUB_REPOSITORY", repository)
+    monkeypatch.setattr(
+        run_benchmarks, "GITHUB_URL", f"https://github.com/{repository}"
+    )
+
+
 def test_update_metadata(benchmarks_checkout, monkeypatch):
     dont_get_git_merge_base(monkeypatch)
     hardcode_benchmark_hash(monkeypatch)
+    hardcode_github_repository(monkeypatch)
 
     shutil.copy(
         DATA_PATH
@@ -66,6 +75,7 @@ def test_update_metadata(benchmarks_checkout, monkeypatch):
 
 def test_run_benchmarks(benchmarks_checkout, monkeypatch):
     hardcode_benchmark_hash(monkeypatch)
+    hardcode_github_repository(monkeypatch)
 
     shutil.copyfile(
         DATA_PATH / "bench_runner.toml", benchmarks_checkout / "bench_runner.toml"
