@@ -243,6 +243,8 @@ def tune_system(venv: PathLike, perf: bool) -> None:
                 "echo 100000 > /proc/sys/kernel/perf_event_max_sample_rate",
             ]
         )
+
+
 def reset_system(venv: PathLike) -> None:
     # System tuning is Linux only
     if util.get_simple_platform() != "linux":
