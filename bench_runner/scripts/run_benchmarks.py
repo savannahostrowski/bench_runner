@@ -32,7 +32,7 @@ REPO_ROOT = Path()
 BENCHMARK_JSON = REPO_ROOT / "benchmark.json"
 PROFILING_RESULTS = REPO_ROOT / "profiling" / "results"
 GITHUB_URL = "https://github.com/" + os.environ.get(
-    "GITHUB_REPOSITORY", "faster-cpython/bench_runner"
+    "GITHUB_REPOSITORY", "python/bench_runner"
 )
 # Environment variables that control the execution of CPython
 ENV_VARS = ["PYTHON_JIT", "PYPERF_PERF_RECORD_EXTRA_OPTS"]
