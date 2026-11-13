@@ -48,9 +48,7 @@ def _clean(string: str) -> str:
     """
     Clean an arbitrary string to be suitable for a filename.
 
-    It can't contain dashes, since dashes are used as a delimiter, or forward
-    slashes, since Git branch names commonly contain them and they would create
-    unintended subdirectories.
+    Dashes delimit filename fields, and slashes would create subdirectories.
     """
     return string.replace("-", "_").replace("/", "_")
 
@@ -282,7 +280,7 @@ class BenchmarkComparison(Comparison):
         elif gm > 1.0:
             return f"{gm:.03f}x faster"
         else:
-            return f"{1.0+(1.0-gm):.03f}x slower"
+            return f"{1.0 + (1.0 - gm):.03f}x slower"
 
     @property
     def geometric_mean(self) -> str:

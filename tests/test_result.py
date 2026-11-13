@@ -57,9 +57,9 @@ def test_merge_base(tmp_path, monkeypatch):
     )
     with open(result_with_base) as fd:
         contents = json.load(fd)
-    contents["metadata"][
-        "commit_merge_base"
-    ] = "9d38120e335357a3b294277fd5eff0a10e46e043"
+    contents["metadata"]["commit_merge_base"] = (
+        "9d38120e335357a3b294277fd5eff0a10e46e043"
+    )
     with open(result_with_base, "w") as fd:
         json.dump(contents, fd)
     # End hack
@@ -123,27 +123,10 @@ def test_from_scratch(monkeypatch):
         f"-my%2dfork-9d38120e335357a3b294-{platform.python_version()}-b7e4f1d.json"
     )
 
-
-def test_from_scratch_sanitizes_ref_path_separator(monkeypatch):
-    monkeypatch.chdir(DATA_PATH)
-    monkeypatch.setattr(
-        mod_result.git,
-        "get_git_hash",
-        lambda *_args: "b7e4f1d97c6e784d2dee182d2b81541ddcff5751",
-    )
-    monkeypatch.setattr(
-        mod_result.git,
-        "get_git_commit_date",
-        lambda *_args: "2022-11-19T20:47:09+00:00",
-    )
-    monkeypatch.setattr(socket, "gethostname", lambda: "pyperf")
-
-    result = mod_result.Result.from_scratch(
-        sys.executable,
-        "my-fork",
-        "jit/free-threading",
-    )
-
+    result = mod_result.Result.from_scratch(python, "my-fork", "jit/free-threading")
     assert result.ref == "jit_free_threading"
-    assert result.filename.parent.parent == Path("results")
-    assert "-jit_free_threading-" in result.filename.name
+    assert result.filename == Path(
+        f"results/bm-20221119-{platform.python_version()}-b7e4f1d/"
+        f"bm-20221119-{platform.system().lower()}-{platform.machine().lower()}"
+        f"-my%2dfork-jit_free_threading-{platform.python_version()}-b7e4f1d.json"
+    )
